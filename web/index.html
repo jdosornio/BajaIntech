@@ -9,8 +9,19 @@ and open the template in the editor.
         <title>TODO supply a title</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
     </head>
     <body>
         <div>TODO write content</div>
+        <button onclick="send();">Click me</button>
+        
+        <script>
+            function send() {
+                $.post("http://localhost:8080/BajaIntech/webresources/StreetSecurity/review_street", 
+                {reviewData: JSON.stringify({hola: "mundo", como: "estas"})}, function(data) {
+                    alert(data);
+                });
+            }
+        </script>
     </body>
 </html>
