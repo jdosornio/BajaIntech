@@ -6,9 +6,16 @@
 package com.bajaintec.services;
 
 //import javax.ws.rs.Consumes;
+import com.bajaintec.dao.DAOServiceLocator;
+import com.bajaintec.entities.Calificacion;
+import com.bajaintec.entities.Calle;
+import com.bajaintec.entities.EvaluacionSeguridad;
+import com.bajaintec.entities.Usuario;
 import java.io.StringReader;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -37,6 +44,17 @@ public class StreetSecurityService {
     public static final String EMAIL_PARAM = "email";
     public static final String BIRTHDATE_PARAM = "birthdate";
     
+    //Parámetros de json
+    private static final String PRIMERA_LOCALIZACION_N = "primera_localizacion_n";
+    private static final String PRIMERA_LOCALIZACION_W = "primera_localizacion_w";
+    private static final String SEGUNDA_LOCALIZACION_N = "segunda_localizacion_n";
+    private static final String SEGUNDA_LOCALIZACION_W = "segunda_localizacion_w";
+    
+    private static final String CALLE = "calle";
+    private static final String CALIFICACION = "calificacion";
+    private static final String USUARIO = "usuario";
+    
+    
     @POST
     @Path("/review_street")
 //    @Consumes(MediaType.APPLICATION_JSON)
@@ -46,7 +64,58 @@ public class StreetSecurityService {
             obj = reader.readObject();
         }
         
+        EvaluacionSeguridad evaluacion = new EvaluacionSeguridad();
         
+        //Set points
+        evaluacion.setPrimeraLocalizacionN(obj
+                .getJsonNumber(PRIMERA_LOCALIZACION_N).bigDecimalValue());
+        evaluacion.setPrimeraLocalizacionW(obj
+                .getJsonNumber(PRIMERA_LOCALIZACION_W).bigDecimalValue());
+        evaluacion.setPrimeraLocalizacionW(obj
+                .getJsonNumber(SEGUNDA_LOCALIZACION_N).bigDecimalValue());
+        evaluacion.setPrimeraLocalizacionW(obj
+                .getJsonNumber(SEGUNDA_LOCALIZACION_W).bigDecimalValue());
+        
+        //Obtener el nombre de la calle si ya existe...
+        String calle = obj.getString(CALLE);
+        //Select * from calle where descripcion = ?
+        HashMap<String, Object> attrWhere = new HashMap<>();
+        
+        attrWhere.put("descripcion", calle);
+        
+        List objCalles = DAOServiceLocator.getBaseDAO()
+                .getEq(Calle.class, attrWhere);
+        Integer idCalle;
+        
+        if (objCalles != null && objCalles.isEmpty()) {
+            //Si existe entonces obtener el id
+            idCalle = ((Calle)objCalles.get(0)).getIdCalle();
+        } else {
+            //Registrar la calle
+            Calle objCalle = new Calle();
+            
+            objCalle.setDescripcion(calle);
+            
+            idCalle = (Integer) DAOServiceLocator.getBaseDAO()
+                    .add(Calle.class);
+        }
+        //Set calle
+        Calle objCalle = new Calle();
+        objCalle.setIdCalle(idCalle);
+        evaluacion.setCalle(objCalle);
+        
+        //Set calificacion
+        Calificacion objCalif = new Calificacion();
+        objCalif.setIdCalificacion(obj.getInt(CALIFICACION));
+        evaluacion.setCalificacion(objCalif);
+        
+        //Set usuario
+        Usuario objUsuario = new Usuario();
+        objUsuario.setIdUsuario(obj.getInt(USUARIO));
+        evaluacion.setUsuario(objUsuario);
+        
+        //Save data
+        DAOServiceLocator.getBaseDAO().add(evaluacion);
     }
     
     @POST
