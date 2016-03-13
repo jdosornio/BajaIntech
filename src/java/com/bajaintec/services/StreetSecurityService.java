@@ -33,6 +33,8 @@ import javax.ws.rs.GET;
 //import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 //import javax.ws.rs.Produces;
 //import javax.ws.rs.core.MediaType;
 
@@ -70,6 +72,13 @@ public class StreetSecurityService {
     private static final String ID_INCIDENTE = "idIncidente";
     
     private static final String REVIEW_DATA = "reviewData";
+    
+    private static final String LAT = "lat";
+    private static final String LON = "lon";
+    
+    private static final String ORIGEN = "origen";
+    private static final String DESTINO = "destino";
+    private static final String ID_COLOR = "idColor";
     
     @POST
     @Path("/review_street")
@@ -215,6 +224,9 @@ public class StreetSecurityService {
             evaluacion.addIncidente(objIncidente);
         }
         
+        //Save fecha
+//        evaluacion.setTsCreacion(new Date());
+        
         //Save data
         DAOServiceLocator.getBaseDAO().add(evaluacion);
     }
@@ -231,9 +243,26 @@ public class StreetSecurityService {
         
         if (evaluaciones != null && !evaluaciones.isEmpty()) {
             //Existen evaluaciones
-            for(EvaluacionSeguridad eval : (List<EvaluacionSeguridad>)evaluaciones) {
+            JSONArray segmentos = new JSONArray();
+            for(EvaluacionSeguridad eval : (List<EvaluacionSeguridad>)evaluaciones) {            
+                JSONObject segmento = new JSONObject();
+                JSONObject punto = new JSONObject();
+                punto.put(LAT, eval.getPrimeraLocalizacionN());
+                punto.put(LON, eval.getPrimeraLocalizacionW());
                 
+                segmento.put(ORIGEN, punto);
+                
+                punto.put(LAT, eval.getSegundaLocalizacionN());
+                punto.put(LON, eval.getSegundaLocalizacionW());
+                
+                segmento.put(DESTINO, punto);
+                segmento.put(ID_COLOR, eval.getCalificacion().getIdCalificacion());
+                
+                //Agregar
+                segmentos.add(segmento);
             }
+            
+            response = segmentos.toString();
         }
         
         return response;
@@ -341,5 +370,11 @@ public class StreetSecurityService {
         //Almacenar token-user
         return token;
     }    
+    
+    public static void main(String[] args) {
+        StreetSecurityService ss = new StreetSecurityService();
+        
+        System.out.println(ss.viewStreetSafety());
+    }
     
 }
