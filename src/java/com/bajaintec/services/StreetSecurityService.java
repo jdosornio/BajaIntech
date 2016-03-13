@@ -1,7 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * <!--Copyright(C) <2016> <BajaInTec>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
  */
 package com.bajaintec.services;
 
@@ -90,80 +100,9 @@ public class StreetSecurityService {
             @FormParam(ID_USUARIO)Integer idUsuario,
                     @FormParam(ID_MOTIVO)Integer idMotivo,
                     @FormParam(ID_INCIDENTE)Integer idIncidente) {
-//        JsonObject obj;
-//        try (JsonReader reader = Json.createReader(new StringReader(reviewData))) {
-//            obj = reader.readObject();
-//        }
-//        
-//        EvaluacionSeguridad evaluacion = new EvaluacionSeguridad();
-//        
-//        //Set points
-//        evaluacion.setPrimeraLocalizacionN(obj
-//                .getJsonNumber(PRIMERA_LOCALIZACION_N).bigDecimalValue());
-//        evaluacion.setPrimeraLocalizacionW(obj
-//                .getJsonNumber(PRIMERA_LOCALIZACION_W).bigDecimalValue());
-//        evaluacion.setPrimeraLocalizacionW(obj
-//                .getJsonNumber(SEGUNDA_LOCALIZACION_N).bigDecimalValue());
-//        evaluacion.setPrimeraLocalizacionW(obj
-//                .getJsonNumber(SEGUNDA_LOCALIZACION_W).bigDecimalValue());
-//        
-//        //Obtener el nombre de la calle si ya existe...
-//        String calle = obj.getString(CALLE);
-//        //Select * from calle where descripcion = ?
-//        HashMap<String, Object> attrWhere = new HashMap<>();
-//        
-//        attrWhere.put("descripcion", calle);
-//        
-//        List objCalles = DAOServiceLocator.getBaseDAO()
-//                .getEq(Calle.class, attrWhere);
-//        Integer idCalle;
-//        
-//        if (objCalles != null && objCalles.isEmpty()) {
-//            //Si existe entonces obtener el id
-//            idCalle = ((Calle)objCalles.get(0)).getIdCalle();
-//        } else {
-//            //Registrar la calle
-//            Calle objCalle = new Calle();
-//            
-//            objCalle.setDescripcion(calle);
-//            
-//            idCalle = (Integer) DAOServiceLocator.getBaseDAO()
-//                    .add(Calle.class);
-//        }
-//        //Set calle
-//        Calle objCalle = new Calle();
-//        objCalle.setIdCalle(idCalle);
-//        evaluacion.setCalle(objCalle);
-//        
-//        //Set calificacion
-//        Calificacion objCalif = new Calificacion();
-//        objCalif.setIdCalificacion(obj.getInt(CALIFICACION));
-//        evaluacion.setCalificacion(objCalif);
-//        
-//        //Set usuario
-//        Usuario objUsuario = new Usuario();
-//        objUsuario.setIdUsuario(obj.getInt(ID_USUARIO));
-//        evaluacion.setUsuario(objUsuario);
-//        
-//        //Save motivo and incidente...
-//        if (!obj.isNull(ID_MOTIVO)) {
-//            Motivo objMotivo = new Motivo();
-//            objMotivo.setIdMotivo(obj.getInt(ID_MOTIVO));
-//            evaluacion.addMotivo(objMotivo);
-//        }
-//        
-//        if (!obj.isNull(ID_INCIDENTE)) {
-//            Incidente objIncidente = new Incidente();
-//            objIncidente.setIdIncidente(obj.getInt(ID_INCIDENTE));
-//            evaluacion.addIncidente(objIncidente);
-//        }
-//        
-//        //Save data
-//        DAOServiceLocator.getBaseDAO().add(evaluacion);
-//
-////        System.out.println(reviewData);
-////        
-////        return "sap";
+        
+        System.out.println("Puntos: " + primeraLocalizacionN + " " + PRIMERA_LOCALIZACION_W + " "
+        + calle + " " + idCalificacion + " " + idUsuario);
         
         EvaluacionSeguridad evaluacion = new EvaluacionSeguridad();
         
