@@ -68,8 +68,7 @@ public class StreetSecurityService {
     
     private static final String ID_MOTIVO = "idMotivo";
     private static final String ID_INCIDENTE = "idIncidente";
-    
-    private static final String REVIEW_DATA = "reviewData";
+    private static final String NUMERO_POSTE = "noPoste";
     
     @POST
     @Path("/review_street")
@@ -298,38 +297,45 @@ public class StreetSecurityService {
  
     @POST
     @Path("/review_services")
-    public void reviewServices(@FormParam(REVIEW_DATA)String reviewData) {
-        JsonObject obj;
-        try (JsonReader reader = Json.createReader(new StringReader(reviewData))) {
-            obj = reader.readObject();
-        }
+    public void reviewServices(@FormParam(ID_USUARIO)Integer idUsuario,
+            @FormParam(ID_SERVICIO) Integer idServicio,
+            @FormParam(ID_DELEGACION) Integer idDelegacion,
+            @FormParam(LOCALIZACION_N) BigDecimal localizacionN,
+            @FormParam(LOCALIZACION_W) BigDecimal localizacionW,
+            @FormParam(COMENTARIO) String comentario,
+            @FormParam(NUMERO_POSTE) Integer noPoste
+            ) {
         
         EvaluacionServicio evaluacion = new EvaluacionServicio();
         
         Usuario objUsuario = new Usuario();
-        objUsuario.setIdUsuario(obj.getInt(ID_USUARIO));
+        objUsuario.setIdUsuario(idUsuario);
         evaluacion.setUsuario(objUsuario);
         
         ServicioPublico objServicio = new ServicioPublico();
-        objServicio.setIdServicio(obj.getInt(ID_SERVICIO));
+        objServicio.setIdServicio(idServicio);
         evaluacion.setServicioPublico(objServicio);
         
         Delegacion objDelegacion = new Delegacion();
-        objDelegacion.setIdDelegacion(obj.getInt(ID_DELEGACION));
+        objDelegacion.setIdDelegacion(idDelegacion);
         evaluacion.setDelegacion(objDelegacion);
         
         //Set points
-        evaluacion.setLocalizacionN(obj.getJsonNumber(LOCALIZACION_N).bigDecimalValue());
-        evaluacion.setLocalizacionN(obj.getJsonNumber(LOCALIZACION_W).bigDecimalValue());
+        evaluacion.setLocalizacionN(localizacionN);
+        evaluacion.setLocalizacionW(localizacionW);
         
         //Obtener nombre de la calle, si no existe crearlo
         
-        if(obj.containsKey(COMENTARIO) && obj.getString(COMENTARIO).isEmpty()){
-            evaluacion.setComentario(obj.getString(COMENTARIO));
+        if(comentario.isEmpty()){
+            evaluacion.setComentario(comentario);
         }
         
         //TODO: Subir foto
         evaluacion.setUrlFoto("NONE");
+        
+        if(idServicio == 1){
+            evaluacion.setNoPoste(noPoste);
+        }
         
         //Save data
         DAOServiceLocator.getBaseDAO().add(evaluacion);
