@@ -81,7 +81,7 @@ public class StreetSecurityService {
     @POST
     @Path("/review_street")
 //    @Consumes(MediaType.APPLICATION_JSON)
-    public void reviewStreet(@FormParam(PRIMERA_LOCALIZACION_N)
+    public int reviewStreet(@FormParam(PRIMERA_LOCALIZACION_N)
             BigDecimal primeraLocalizacionN, @FormParam(PRIMERA_LOCALIZACION_W)
             BigDecimal primeraLocalizacionW, @FormParam(SEGUNDA_LOCALIZACION_N)
             BigDecimal segundaLocalizacionN, @FormParam(SEGUNDA_LOCALIZACION_W)
@@ -170,8 +170,8 @@ public class StreetSecurityService {
         //Set points
         evaluacion.setPrimeraLocalizacionN(primeraLocalizacionN);
         evaluacion.setPrimeraLocalizacionW(primeraLocalizacionW);
-        evaluacion.setPrimeraLocalizacionW(segundaLocalizacionN);
-        evaluacion.setPrimeraLocalizacionW(segundaLocalizacionW);
+        evaluacion.setSegundaLocalizacionN(segundaLocalizacionN);
+        evaluacion.setSegundaLocalizacionW(segundaLocalizacionW);
         
         //Select * from calle where descripcion = ?
         HashMap<String, Object> attrWhere = new HashMap<>();
@@ -224,7 +224,9 @@ public class StreetSecurityService {
         }
         
         //Save data
-        DAOServiceLocator.getBaseDAO().add(evaluacion);
+       Integer id = (Integer) DAOServiceLocator.getBaseDAO().add(evaluacion);
+       
+       return id;
     }
     
     @GET
@@ -248,11 +250,16 @@ public class StreetSecurityService {
                  
                 segmento.put(ORIGEN, punto);
                 
+                punto = new JSONObject();
+                
                 punto.put(LAT, eval.getSegundaLocalizacionN());
                 punto.put(LON, eval.getSegundaLocalizacionW());
                 
                 segmento.put(DESTINO, punto);
-                segmento.put(ID_COLOR, eval.getCalificacion().getIdCalificacion());
+                
+                //add color
+                segmento.put(ID_COLOR, eval.getCalificacion()
+                        .getIdCalificacion());
                 
                 //Agregar
                 segmentos.add(segmento);
@@ -316,6 +323,9 @@ public class StreetSecurityService {
             idUsuario = usuario.getIdUsuario();
         }
         
+        System.out.println("user: " + user + " pass: " + pass);
+        System.out.println("id: " + idUsuario);
+        
         return String.valueOf(idUsuario);
         //Verificar en base de datos
 //        String token = issueToken(user);
@@ -324,7 +334,7 @@ public class StreetSecurityService {
  
     @POST
     @Path("/review_services")
-    public void reviewServices(@FormParam(ID_USUARIO)Integer idUsuario,
+    public int reviewServices(@FormParam(ID_USUARIO)Integer idUsuario,
             @FormParam(ID_SERVICIO) Integer idServicio,
             @FormParam(ID_DELEGACION) Integer idDelegacion,
             @FormParam(LOCALIZACION_N) BigDecimal localizacionN,
@@ -349,7 +359,7 @@ public class StreetSecurityService {
             evaluacion.setDelegacion(objDelegacion);
             
             //Set points
-            evaluacion.setLocalizacionN(localizacionN);
+            evaluacion.setLocalizacionN(localizacionN); 
             evaluacion.setLocalizacionW(localizacionW);
             
             //Obtener nombre de la calle y colonia, si no existe crearlo
@@ -407,7 +417,7 @@ public class StreetSecurityService {
             //Set calle
             evaluacion.setColonia(objColonia);
         
-            if(comentario.isEmpty()){
+            if(!comentario.isEmpty()){
                 evaluacion.setComentario(comentario);
             }
             
@@ -422,10 +432,12 @@ public class StreetSecurityService {
             }
             
             //Save data
-            DAOServiceLocator.getBaseDAO().add(evaluacion);
+            Integer res = (Integer) DAOServiceLocator.getBaseDAO().add(evaluacion);
+            return res;
         } catch (Exception ex) {
             Logger.getLogger(StreetSecurityService.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return 0;
     }
     
     private String issueToken(String user){
