@@ -17,8 +17,10 @@ import com.bajaintec.entities.Motivo;
 import com.bajaintec.entities.ServicioPublico;
 import com.bajaintec.entities.Usuario;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -27,6 +29,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 //import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
 //import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -72,26 +75,27 @@ public class StreetSecurityService {
     @POST
     @Path("/review_street")
 //    @Consumes(MediaType.APPLICATION_JSON)
-    public void reviewStreet(@FormParam(REVIEW_DATA)String reviewData) {
-        JsonObject obj;
-        try (JsonReader reader = Json.createReader(new StringReader(reviewData))) {
-            obj = reader.readObject();
-        }
+    public void reviewStreet(@FormParam(PRIMERA_LOCALIZACION_N)BigDecimal primeraLocalizacionN,
+            @FormParam(PRIMERA_LOCALIZACION_W)BigDecimal primeraLocalizacionW,
+            @FormParam(SEGUNDA_LOCALIZACION_N)BigDecimal segundaLocalizacionN,
+            @FormParam(SEGUNDA_LOCALIZACION_W)BigDecimal segundaLocalizacionW,
+            @FormParam(ID_USUARIO)Integer idUsuario,
+            @FormParam(ID_MOTIVO)Integer idMotivo,
+            @FormParam(ID_INCIDENTE)Integer idIncidente,
+            @FormParam(CALIFICACION)Integer idCalificacion
+            ) {
         
         EvaluacionSeguridad evaluacion = new EvaluacionSeguridad();
         
         //Set points
-        evaluacion.setPrimeraLocalizacionN(obj
-                .getJsonNumber(PRIMERA_LOCALIZACION_N).bigDecimalValue());
-        evaluacion.setPrimeraLocalizacionW(obj
-                .getJsonNumber(PRIMERA_LOCALIZACION_W).bigDecimalValue());
-        evaluacion.setPrimeraLocalizacionW(obj
-                .getJsonNumber(SEGUNDA_LOCALIZACION_N).bigDecimalValue());
-        evaluacion.setPrimeraLocalizacionW(obj
-                .getJsonNumber(SEGUNDA_LOCALIZACION_W).bigDecimalValue());
+        evaluacion.setPrimeraLocalizacionN(primeraLocalizacionN);
+        evaluacion.setPrimeraLocalizacionW(primeraLocalizacionW);
+        evaluacion.setPrimeraLocalizacionW(segundaLocalizacionN);
+        evaluacion.setPrimeraLocalizacionW(segundaLocalizacionW);
         
-        //Obtener el nombre de la calle si ya existe...
-        String calle = obj.getString(CALLE);
+        //Obtener la calle del servicio de google.
+        String calle = null;
+        
         //Select * from calle where descripcion = ?
         HashMap<String, Object> attrWhere = new HashMap<>();
         
@@ -120,37 +124,63 @@ public class StreetSecurityService {
         
         //Set calificacion
         Calificacion objCalif = new Calificacion();
-        objCalif.setIdCalificacion(obj.getInt(CALIFICACION));
+        objCalif.setIdCalificacion(idCalificacion);
         evaluacion.setCalificacion(objCalif);
         
         //Set usuario
         Usuario objUsuario = new Usuario();
-        objUsuario.setIdUsuario(obj.getInt(ID_USUARIO));
+        objUsuario.setIdUsuario(idUsuario);
         evaluacion.setUsuario(objUsuario);
         
         //Save motivo and incidente...
-        Motivo objMotivo = new Motivo();
-        objMotivo.setIdMotivo(obj.getInt(ID_MOTIVO));
-        evaluacion.addMotivo(objMotivo);
+        if (idMotivo != null) {
+            Motivo objMotivo = new Motivo();
+            objMotivo.setIdMotivo(idMotivo);
+            evaluacion.addMotivo(objMotivo);
+        }
         
-        Incidente objIncidente = new Incidente();
-        objIncidente.setIdIncidente(obj.getInt(ID_INCIDENTE));
-        evaluacion.addIncidente(objIncidente);
+        if (idIncidente != null) {
+            Incidente objIncidente = new Incidente();
+            objIncidente.setIdIncidente(idIncidente);
+            evaluacion.addIncidente(objIncidente);
+        }
         
         //Save data
         DAOServiceLocator.getBaseDAO().add(evaluacion);
     }
     
+    @GET
+    @Path("/view_street_safety")
+    public String viewStreetSafety() {
+        String response = null;
+        
+        
+        return response;
+    }
+    
     @POST
     @Path("/sign_up")
-    public void signUp(@FormParam(NAME)String name, 
-            @FormParam(USER)String user,
+    public String signUp(@FormParam(USER)String user,
             @FormParam(PASS)String pass,
             @FormParam(GENDER)String gender,
             @FormParam(OCCUPATION)String occupation,
             @FormParam(EMAIL)String email,
             @FormParam(BIRTHDATE)String birthdate){
         
+        Usuario objUsuario = new Usuario();
+
+        objUsuario.setUsuario(user);
+        objUsuario.setContrasena(pass);
+        objUsuario.setSexo(gender);
+        objUsuario.setOcupacion(occupation);
+        objUsuario.setCorreo(email);
+        objUsuario.setFechaNacimiento(Date.valueOf(birthdate));
+        
+        DAOServiceLocator.getBaseDAO().add(objUsuario);
+        
+        System.out.println(user);
+        
+        return "todo bien";
     }
     
     @POST

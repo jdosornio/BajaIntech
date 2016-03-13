@@ -13,7 +13,6 @@ public class Usuario  implements java.io.Serializable {
 
 
      private Integer idUsuario;
-     private String nombre;
      private String usuario;
      private String contrasena;
      private String sexo;
@@ -28,8 +27,7 @@ public class Usuario  implements java.io.Serializable {
     }
 
 	
-    public Usuario(String nombre, String usuario, String contrasena, String sexo, String ocupacion, String correo, Date fechaNacimiento) {
-        this.nombre = nombre;
+    public Usuario(String usuario, String contrasena, String sexo, String ocupacion, String correo, Date fechaNacimiento) {
         this.usuario = usuario;
         this.contrasena = contrasena;
         this.sexo = sexo;
@@ -37,8 +35,7 @@ public class Usuario  implements java.io.Serializable {
         this.correo = correo;
         this.fechaNacimiento = fechaNacimiento;
     }
-    public Usuario(String nombre, String usuario, String contrasena, String sexo, String ocupacion, String correo, Date fechaNacimiento, Set evaluacionSeguridads, Set tokens, Set evaluacionServicios) {
-       this.nombre = nombre;
+    public Usuario(String usuario, String contrasena, String sexo, String ocupacion, String correo, Date fechaNacimiento, Set evaluacionSeguridads, Set tokens, Set evaluacionServicios) {
        this.usuario = usuario;
        this.contrasena = contrasena;
        this.sexo = sexo;
@@ -57,13 +54,7 @@ public class Usuario  implements java.io.Serializable {
     public void setIdUsuario(Integer idUsuario) {
         this.idUsuario = idUsuario;
     }
-    public String getNombre() {
-        return this.nombre;
-    }
     
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
     public String getUsuario() {
         return this.usuario;
     }

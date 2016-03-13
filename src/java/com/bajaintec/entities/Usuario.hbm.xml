@@ -8,10 +8,7 @@
             <column name="id_usuario" />
             <generator class="identity" />
         </id>
-        <property name="nombre" type="string">
-            <column name="nombre" length="120" not-null="true" />
-        </property>
-        <property name="usuario" type="string">
+        <property name="usuario" type="string" unique="true">
             <column name="usuario" length="45" not-null="true" />
         </property>
         <property name="contrasena" type="string">
