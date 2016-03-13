@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd">
+<hibernate-reverse-engineering>
+  <schema-selection match-catalog="safe_db"/>
+  <table-filter match-name="usuario"/>
+  <table-filter match-name="calificacion"/>
+  <table-filter match-name="calle"/>
+  <table-filter match-name="token"/>
+  <table-filter match-name="evaluacion_servicio"/>
+  <table-filter match-name="colonia"/>
+  <table-filter match-name="motivo"/>
+  <table-filter match-name="motivo_eval_seg"/>
+  <table-filter match-name="incidente_eval_seg"/>
+  <table-filter match-name="evaluacion_seguridad"/>
+  <table-filter match-name="servicio_publico"/>
+  <table-filter match-name="delegacion"/>
+  <table-filter match-name="incidente"/>
+</hibernate-reverse-engineering>

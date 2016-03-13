@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 12, 2016 6:34:40 PM by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.bajaintec.entities.Motivo" table="motivo" catalog="safe_db" optimistic-lock="version">
+        <id name="idMotivo" type="int">
+            <column name="id_motivo" />
+            <generator class="assigned" />
+        </id>
+        <property name="descripcion" type="string">
+            <column name="descripcion" length="120" not-null="true" />
+        </property>
+        <set name="evaluacionSeguridads" table="motivo_eval_seg" inverse="false" lazy="true" fetch="select">
+            <key>
+                <column name="id_motivo" not-null="true" />
+            </key>
+            <many-to-many entity-name="com.bajaintec.entities.EvaluacionSeguridad">
+                <column name="id_evaluacion" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>

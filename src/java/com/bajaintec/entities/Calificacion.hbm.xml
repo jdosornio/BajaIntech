@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 12, 2016 6:34:40 PM by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.bajaintec.entities.Calificacion" table="calificacion" catalog="safe_db" optimistic-lock="version">
+        <id name="idCalificacion" type="int">
+            <column name="id_calificacion" />
+            <generator class="assigned" />
+        </id>
+        <property name="descripcion" type="string">
+            <column name="descripcion" length="45" not-null="true" />
+        </property>
+        <property name="color" type="string">
+            <column name="color" length="45" not-null="true" />
+        </property>
+        <property name="valor" type="int">
+            <column name="valor" not-null="true" />
+        </property>
+        <set name="evaluacionSeguridads" table="evaluacion_seguridad" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="id_calificacion" not-null="true" />
+            </key>
+            <one-to-many class="com.bajaintec.entities.EvaluacionSeguridad" />
+        </set>
+    </class>
+</hibernate-mapping>

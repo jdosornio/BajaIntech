@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 12, 2016 6:34:40 PM by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.bajaintec.entities.EvaluacionSeguridad" table="evaluacion_seguridad" catalog="safe_db" optimistic-lock="version">
+        <id name="idEvaluacionSeguridad" type="java.lang.Integer">
+            <column name="id_evaluacion_seguridad" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="calificacion" class="com.bajaintec.entities.Calificacion" fetch="select">
+            <column name="id_calificacion" not-null="true" />
+        </many-to-one>
+        <many-to-one name="calle" class="com.bajaintec.entities.Calle" fetch="select">
+            <column name="id_calle" not-null="true" />
+        </many-to-one>
+        <many-to-one name="usuario" class="com.bajaintec.entities.Usuario" fetch="select">
+            <column name="id_usuario" not-null="true" />
+        </many-to-one>
+        <property name="tsCreacion" type="timestamp">
+            <column name="ts_creacion" length="19" not-null="true" />
+        </property>
+        <property name="primeraLocalizacionN" type="big_decimal">
+            <column name="primera_localizacion_n" precision="16" scale="16" not-null="true" />
+        </property>
+        <property name="primeraLocalizacionW" type="big_decimal">
+            <column name="primera_localizacion_w" precision="16" scale="16" not-null="true" />
+        </property>
+        <property name="segundaLocalizacionN" type="big_decimal">
+            <column name="segunda_localizacion_n" precision="16" scale="16" not-null="true" />
+        </property>
+        <property name="segundaLocalizacionW" type="big_decimal">
+            <column name="segunda_localizacion_w" precision="16" scale="16" not-null="true" />
+        </property>
+        <set name="motivos" table="motivo_eval_seg" inverse="false" lazy="true" fetch="select">
+            <key>
+                <column name="id_evaluacion" not-null="true" />
+            </key>
+            <many-to-many entity-name="com.bajaintec.entities.Motivo">
+                <column name="id_motivo" not-null="true" />
+            </many-to-many>
+        </set>
+        <set name="incidentes" table="incidente_eval_seg" inverse="false" lazy="true" fetch="select">
+            <key>
+                <column name="id_evaluacion" not-null="true" />
+            </key>
+            <many-to-many entity-name="com.bajaintec.entities.Incidente">
+                <column name="id_incidente" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>

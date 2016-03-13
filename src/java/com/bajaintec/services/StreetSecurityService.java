@@ -6,9 +6,13 @@
 package com.bajaintec.services;
 
 //import javax.ws.rs.Consumes;
+import java.io.StringReader;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Random;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 //import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 //import javax.ws.rs.GET;
@@ -36,11 +40,13 @@ public class StreetSecurityService {
     @POST
     @Path("/review_street")
 //    @Consumes(MediaType.APPLICATION_JSON)
-    public String reviewStreet(@FormParam("reviewData")String reviewData) {
+    public void reviewStreet(@FormParam("reviewData")String reviewData) {
+        JsonObject obj;
+        try (JsonReader reader = Json.createReader(new StringReader(reviewData))) {
+            obj = reader.readObject();
+        }
         
-        System.out.println(reviewData);
         
-        return "message";
     }
     
     @POST
