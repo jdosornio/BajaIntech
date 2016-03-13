@@ -129,10 +129,12 @@ public class EvaluacionSeguridad  implements java.io.Serializable {
     public void setIncidentes(Set incidentes) {
         this.incidentes = incidentes;
     }
-
-
-
-
+    
+    public void addMotivo(Motivo motivo) {
+        motivos.add(motivo);
+    }
+    
+    public void addIncidente(Incidente incidente) {
+        incidentes.add(incidente);
+    }
 }
-
-

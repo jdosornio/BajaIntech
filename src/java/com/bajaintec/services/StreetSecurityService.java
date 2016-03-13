@@ -10,6 +10,8 @@ import com.bajaintec.dao.DAOServiceLocator;
 import com.bajaintec.entities.Calificacion;
 import com.bajaintec.entities.Calle;
 import com.bajaintec.entities.EvaluacionSeguridad;
+import com.bajaintec.entities.Incidente;
+import com.bajaintec.entities.Motivo;
 import com.bajaintec.entities.Usuario;
 import java.io.StringReader;
 import java.math.BigInteger;
@@ -52,7 +54,10 @@ public class StreetSecurityService {
     
     private static final String CALLE = "calle";
     private static final String CALIFICACION = "calificacion";
-    private static final String USUARIO = "usuario";
+    private static final String ID_USUARIO = "idUsuario";
+    
+    private static final String ID_MOTIVO = "idMotivo";
+    private static final String ID_INCIDENTE = "idIncidente";
     
     
     @POST
@@ -111,8 +116,17 @@ public class StreetSecurityService {
         
         //Set usuario
         Usuario objUsuario = new Usuario();
-        objUsuario.setIdUsuario(obj.getInt(USUARIO));
+        objUsuario.setIdUsuario(obj.getInt(ID_USUARIO));
         evaluacion.setUsuario(objUsuario);
+        
+        //Save motivo and incidente...
+        Motivo objMotivo = new Motivo();
+        objMotivo.setIdMotivo(obj.getInt(ID_MOTIVO));
+        evaluacion.addMotivo(objMotivo);
+        
+        Incidente objIncidente = new Incidente();
+        objIncidente.setIdIncidente(obj.getInt(ID_INCIDENTE));
+        evaluacion.addIncidente(objIncidente);
         
         //Save data
         DAOServiceLocator.getBaseDAO().add(evaluacion);
