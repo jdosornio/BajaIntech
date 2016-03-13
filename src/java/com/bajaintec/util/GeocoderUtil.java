@@ -13,7 +13,6 @@ import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 /**
  *
@@ -24,7 +23,8 @@ public class GeocoderUtil {
     private static final GeoApiContext CONTEXT = 
             new GeoApiContext().setApiKey("AIzaSyC2GG9X_PmqhTdWAE1_qBGeEf07FDHiP8A");
     
-    public String[] getCalleColonia(BigDecimal lat, BigDecimal lng) throws Exception{
+    public static String[] getCalleColonia(BigDecimal lat,
+            BigDecimal lng) throws Exception{
         String[] calleColonia = new String[2];
         try{
             LatLng coords = new LatLng(lat.doubleValue(), lng.doubleValue());
@@ -47,6 +47,8 @@ public class GeocoderUtil {
     }
     
     public static void main(String[] args) throws Exception {
-        new GeocoderUtil().getCalleColonia(new BigDecimal(32.595081), new BigDecimal(-115.482477));
+        String[] ars = new GeocoderUtil().getCalleColonia(new BigDecimal(32.595081), new BigDecimal(-115.482477));
+    
+        System.out.println(ars[0] + " ----- " + ars[1]);
     }
 }

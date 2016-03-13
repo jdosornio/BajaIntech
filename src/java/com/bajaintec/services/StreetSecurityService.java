@@ -9,6 +9,7 @@ package com.bajaintec.services;
 import com.bajaintec.dao.DAOServiceLocator;
 import com.bajaintec.entities.Calificacion;
 import com.bajaintec.entities.Calle;
+import com.bajaintec.entities.Colonia;
 import com.bajaintec.entities.Delegacion;
 import com.bajaintec.entities.EvaluacionSeguridad;
 import com.bajaintec.entities.EvaluacionServicio;
@@ -16,23 +17,24 @@ import com.bajaintec.entities.Incidente;
 import com.bajaintec.entities.Motivo;
 import com.bajaintec.entities.ServicioPublico;
 import com.bajaintec.entities.Usuario;
-import java.io.StringReader;
+import com.bajaintec.util.GeocoderUtil;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.sql.Date;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 //import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 //import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 //import javax.ws.rs.Produces;
 //import javax.ws.rs.core.MediaType;
 
@@ -69,6 +71,12 @@ public class StreetSecurityService {
     private static final String ID_MOTIVO = "idMotivo";
     private static final String ID_INCIDENTE = "idIncidente";
     private static final String NUMERO_POSTE = "noPoste";
+    
+    private static final String LAT = "lat";
+    private static final String LON = "lon";
+    private static final String ORIGEN = "origen";
+    private static final String DESTINO = "destino";
+    private static final String ID_COLOR = "idColor";
     
     @POST
     @Path("/review_street")
@@ -172,24 +180,25 @@ public class StreetSecurityService {
         
         List objCalles = DAOServiceLocator.getBaseDAO()
                 .getEq(Calle.class, attrWhere);
-        Integer idCalle;
+        Calle objCalle;
         
-        if (objCalles != null && objCalles.isEmpty()) {
-            //Si existe entonces obtener el id
-            idCalle = ((Calle)objCalles.get(0)).getIdCalle();
+        if (objCalles != null && !objCalles.isEmpty()) {
+            //obtener objeto
+            objCalle = (Calle)objCalles.get(0);
         } else {
             //Registrar la calle
-            Calle objCalle = new Calle();
+            objCalle = new Calle();
             
             objCalle.setDescripcion(calle);
             
-            idCalle = (Integer) DAOServiceLocator.getBaseDAO()
-                    .add(Calle.class);
+            DAOServiceLocator.getBaseDAO()
+                    .add(objCalle);
         }
         //Set calle
-        Calle objCalle = new Calle();
-        objCalle.setIdCalle(idCalle);
         evaluacion.setCalle(objCalle);
+        
+        //set date
+        evaluacion.setTsCreacion(new Date());
         
         //Set calificacion
         Calificacion objCalif = new Calificacion();
@@ -230,9 +239,26 @@ public class StreetSecurityService {
         
         if (evaluaciones != null && !evaluaciones.isEmpty()) {
             //Existen evaluaciones
-            for(EvaluacionSeguridad eval : (List<EvaluacionSeguridad>)evaluaciones) {
+            JSONArray segmentos = new JSONArray();
+             for(EvaluacionSeguridad eval : (List<EvaluacionSeguridad>)evaluaciones) {            
+                JSONObject segmento = new JSONObject();
+                JSONObject punto = new JSONObject();
+                punto.put(LAT, eval.getPrimeraLocalizacionN());
+                punto.put(LON, eval.getPrimeraLocalizacionW());
+                 
+                segmento.put(ORIGEN, punto);
                 
-            }
+                punto.put(LAT, eval.getSegundaLocalizacionN());
+                punto.put(LON, eval.getSegundaLocalizacionW());
+                
+                segmento.put(DESTINO, punto);
+                segmento.put(ID_COLOR, eval.getCalificacion().getIdCalificacion());
+                
+                //Agregar
+                segmentos.add(segmento);
+             }
+            
+            response = segmentos.toString();
         }
         
         return response;
@@ -255,7 +281,8 @@ public class StreetSecurityService {
         objUsuario.setOcupacion(occupation);
         objUsuario.setCorreo(email);
         System.out.println("Fecha: " + birthdate.replaceAll("/", "-"));
-        objUsuario.setFechaNacimiento(Date.valueOf(birthdate.replaceAll("/", "-")));
+        objUsuario.setFechaNacimiento(java.sql.Date.valueOf(birthdate
+                .replaceAll("/", "-")));
         
         Integer id = (Integer) DAOServiceLocator.getBaseDAO().add(objUsuario);
         
@@ -306,39 +333,99 @@ public class StreetSecurityService {
             @FormParam(NUMERO_POSTE) Integer noPoste
             ) {
         
-        EvaluacionServicio evaluacion = new EvaluacionServicio();
+        try {
+            EvaluacionServicio evaluacion = new EvaluacionServicio();
+            
+            Usuario objUsuario = new Usuario();
+            objUsuario.setIdUsuario(idUsuario);
+            evaluacion.setUsuario(objUsuario);
+            
+            ServicioPublico objServicio = new ServicioPublico();
+            objServicio.setIdServicio(idServicio);
+            evaluacion.setServicioPublico(objServicio);
+            
+            Delegacion objDelegacion = new Delegacion();
+            objDelegacion.setIdDelegacion(idDelegacion);
+            evaluacion.setDelegacion(objDelegacion);
+            
+            //Set points
+            evaluacion.setLocalizacionN(localizacionN);
+            evaluacion.setLocalizacionW(localizacionW);
+            
+            //Obtener nombre de la calle y colonia, si no existe crearlo
+            String[] calleColonia = GeocoderUtil.getCalleColonia(localizacionN,
+                    localizacionW);
+            
+            //Set calle
+            HashMap<String, Object> attrWhere = new HashMap<>();
+
+            attrWhere.put("descripcion", calleColonia[0]);
+
+            List objCalles = DAOServiceLocator.getBaseDAO()
+                    .getEq(Calle.class, attrWhere);
+            
+            Calle objCalle;
+
+            if (objCalles != null && !objCalles.isEmpty()) {
+                //obtener objeto
+                objCalle = (Calle)objCalles.get(0);
+            } else {
+                //Registrar la calle
+                objCalle = new Calle();
+
+                objCalle.setDescripcion(calleColonia[0]);
+
+                DAOServiceLocator.getBaseDAO()
+                        .add(objCalle);
+            }
+            //Set calle
+            evaluacion.setCalle(objCalle);
         
-        Usuario objUsuario = new Usuario();
-        objUsuario.setIdUsuario(idUsuario);
-        evaluacion.setUsuario(objUsuario);
+            
+            
+            //Guardar colonia
+            attrWhere.clear();
+            attrWhere.put("descripcion", calleColonia[1]);
+
+            List objColonias = DAOServiceLocator.getBaseDAO()
+                    .getEq(Colonia.class, attrWhere);
+            
+            Colonia objColonia;
+
+            if (objColonias != null && !objColonias.isEmpty()) {
+                //obtener objeto
+                objColonia = (Colonia)objColonias.get(0);
+            } else {
+                //Registrar la colonia
+                objColonia = new Colonia();
+
+                objColonia.setDescripcion(calleColonia[1]);
+
+                DAOServiceLocator.getBaseDAO()
+                        .add(objColonia);
+            }
+            //Set calle
+            evaluacion.setColonia(objColonia);
         
-        ServicioPublico objServicio = new ServicioPublico();
-        objServicio.setIdServicio(idServicio);
-        evaluacion.setServicioPublico(objServicio);
-        
-        Delegacion objDelegacion = new Delegacion();
-        objDelegacion.setIdDelegacion(idDelegacion);
-        evaluacion.setDelegacion(objDelegacion);
-        
-        //Set points
-        evaluacion.setLocalizacionN(localizacionN);
-        evaluacion.setLocalizacionW(localizacionW);
-        
-        //Obtener nombre de la calle, si no existe crearlo
-        
-        if(comentario.isEmpty()){
-            evaluacion.setComentario(comentario);
+            if(comentario.isEmpty()){
+                evaluacion.setComentario(comentario);
+            }
+            
+            //Set date
+            evaluacion.setTsCreacion(new Date());
+            
+            //TODO: Subir foto
+            evaluacion.setUrlFoto("NONE");
+            
+            if(idServicio == 1){
+                evaluacion.setNoPoste(noPoste);
+            }
+            
+            //Save data
+            DAOServiceLocator.getBaseDAO().add(evaluacion);
+        } catch (Exception ex) {
+            Logger.getLogger(StreetSecurityService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        //TODO: Subir foto
-        evaluacion.setUrlFoto("NONE");
-        
-        if(idServicio == 1){
-            evaluacion.setNoPoste(noPoste);
-        }
-        
-        //Save data
-        DAOServiceLocator.getBaseDAO().add(evaluacion);
     }
     
     private String issueToken(String user){
