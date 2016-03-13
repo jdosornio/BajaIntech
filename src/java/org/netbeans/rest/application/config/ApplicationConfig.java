@@ -29,6 +29,7 @@ public class ApplicationConfig extends Application {
      * If required, comment out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
+        resources.add(com.bajaintec.services.AuthentificationFilter.class);
         resources.add(com.bajaintec.services.StreetSecurityService.class);
     }
     

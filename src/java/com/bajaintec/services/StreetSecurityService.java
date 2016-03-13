@@ -9,12 +9,12 @@ package com.bajaintec.services;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Random;
-import javax.ws.rs.Consumes;
+//import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
+//import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+//import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 //import javax.ws.rs.core.MediaType;
 
@@ -44,7 +44,7 @@ public class StreetSecurityService {
     }
     
     @POST
-    @Path("/user")
+    @Path("/sign_up")
     public void signUp(@FormParam(NAME_PARAM)String name, 
             @FormParam(USER_PARAM)String user,
             @FormParam(PASS_PARAM)String pass,
@@ -55,10 +55,10 @@ public class StreetSecurityService {
         
     }
     
-    @GET
-    @Path("/user")
-    @Produces("application/json")
-    @Consumes("application/x-www-form-urlencoded")
+    @POST
+    @Path("/sign_in")
+//    @Produces("application/json")
+//    @Consumes("application/x-www-form-urlencoded")
     public Response login(@FormParam(USER_PARAM) String user,
             @FormParam(PASS_PARAM) String pass){
         //Verificar en base de datos
