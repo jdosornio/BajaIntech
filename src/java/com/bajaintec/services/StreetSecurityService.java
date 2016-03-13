@@ -216,6 +216,17 @@ public class StreetSecurityService {
     public String viewStreetSafety() {
         String response = null;
         
+        //Obtener todos los registros de las rutas
+        List evaluaciones = DAOServiceLocator.getBaseDAO()
+                .getAll(EvaluacionSeguridad.class);
+        
+        
+        if (evaluaciones != null && !evaluaciones.isEmpty()) {
+            //Existen evaluaciones
+            for(EvaluacionSeguridad eval : (List<EvaluacionSeguridad>)evaluaciones) {
+                
+            }
+        }
         
         return response;
     }
