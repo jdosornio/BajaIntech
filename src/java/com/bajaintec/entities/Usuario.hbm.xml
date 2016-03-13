@@ -20,7 +20,7 @@
         <property name="ocupacion" type="string">
             <column name="ocupacion" length="27" not-null="true" />
         </property>
-        <property name="correo" type="string">
+        <property name="correo" type="string" unique="true">
             <column name="correo" length="45" not-null="true" />
         </property>
         <property name="fechaNacimiento" type="date">

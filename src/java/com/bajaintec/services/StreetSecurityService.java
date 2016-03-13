@@ -41,13 +41,13 @@ import javax.ws.rs.core.Response;
 @Path("/StreetSecurity")
 public class StreetSecurityService {
     
-    public static final String NAME_PARAM = "name";
+//    public static final String NAME_PARAM = "name";
     public static final String USER_PARAM = "user";
     public static final String PASS_PARAM = "pass";
     public static final String GENDER_PARAM = "gender";
     public static final String OCCUPATION_PARAM = "occupation";
     public static final String EMAIL_PARAM = "email";
-    public static final String BIRTHDATE_PARAM = "birthdate";
+    public static final String BIRTHDATE_PARAM = "birthday";
     
     //Parámetros de json
     private static final String PRIMERA_LOCALIZACION_N = "primera_localizacion_n";
@@ -70,8 +70,8 @@ public class StreetSecurityService {
             BigDecimal primeraLocalizacionN, @FormParam(PRIMERA_LOCALIZACION_W)
             BigDecimal primeraLocalizacionW, @FormParam(SEGUNDA_LOCALIZACION_N)
             BigDecimal segundaLocalizacionN, @FormParam(SEGUNDA_LOCALIZACION_W)
-            BigDecimal segundaLocalizacionW, @FormParam(CALIFICACION)
-                    Integer idCalificacion,
+            BigDecimal segundaLocalizacionW, @FormParam(CALLE) String calle,
+            @FormParam(CALIFICACION)Integer idCalificacion,
             @FormParam(ID_USUARIO)Integer idUsuario,
                     @FormParam(ID_MOTIVO)Integer idMotivo,
                     @FormParam(ID_INCIDENTE)Integer idIncidente) {
@@ -158,9 +158,6 @@ public class StreetSecurityService {
         evaluacion.setPrimeraLocalizacionW(segundaLocalizacionN);
         evaluacion.setPrimeraLocalizacionW(segundaLocalizacionW);
         
-        //Obtener la calle del servicio de google.
-        String calle = null;
-        
         //Select * from calle where descripcion = ?
         HashMap<String, Object> attrWhere = new HashMap<>();
         
@@ -239,24 +236,45 @@ public class StreetSecurityService {
         objUsuario.setSexo(gender);
         objUsuario.setOcupacion(occupation);
         objUsuario.setCorreo(email);
-        objUsuario.setFechaNacimiento(Date.valueOf(birthdate));
+        System.out.println("Fecha: " + birthdate.replaceAll("/", "-"));
+        objUsuario.setFechaNacimiento(Date.valueOf(birthdate.replaceAll("/", "-")));
         
-        DAOServiceLocator.getBaseDAO().add(objUsuario);
+        Integer id = (Integer) DAOServiceLocator.getBaseDAO().add(objUsuario);
         
-        System.out.println(user);
+        if (id == null) {
+            return "No se pudo registrar al usuario. El usuario o el correo ya "
+                    + "están registrados";
+        }
         
-        return "todo bien";
+        return "ok";
     }
     
     @POST
     @Path("/sign_in")
 //    @Produces("application/json")
 //    @Consumes("application/x-www-form-urlencoded")
-    public Response login(@FormParam(USER_PARAM) String user,
-            @FormParam(PASS_PARAM) String pass){
+    public String login(@FormParam(USER_PARAM) String user,
+            @FormParam(PASS_PARAM) String pass) {
+        
+        //Verificar que el usuario exista
+        //Select * from usuario where usuario = ?
+        HashMap<String, Object> attrWhere = new HashMap<>();
+        attrWhere.put("usuario", user);
+        
+        List usuarios = DAOServiceLocator.getBaseDAO()
+                .getEq(Usuario.class, attrWhere);
+        
+        Integer idUsuario = null;
+        
+        if (usuarios != null && !usuarios.isEmpty()) {
+            Usuario usuario = (Usuario) usuarios.get(0);
+            idUsuario = usuario.getIdUsuario();
+        }
+        
+        return String.valueOf(idUsuario);
         //Verificar en base de datos
-        String token = issueToken(user);
-        return Response.ok(token).build();
+//        String token = issueToken(user);
+//        return Response.ok(token).build();
     }
       
     private String issueToken(String user){
