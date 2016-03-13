@@ -65,12 +65,12 @@ public class StreetSecurityService {
         String token = issueToken(user);
         return Response.ok(token).build();
     }
-    
+      
     private String issueToken(String user){
         Random random = new SecureRandom();
         String token = new BigInteger(130, random).toString(32);
+        //Almacenar token-user
         return token;
-    }
-    
+    }    
     
 }
