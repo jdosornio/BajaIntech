@@ -9,9 +9,12 @@ package com.bajaintec.services;
 import com.bajaintec.dao.DAOServiceLocator;
 import com.bajaintec.entities.Calificacion;
 import com.bajaintec.entities.Calle;
+import com.bajaintec.entities.Delegacion;
 import com.bajaintec.entities.EvaluacionSeguridad;
+import com.bajaintec.entities.EvaluacionServicio;
 import com.bajaintec.entities.Incidente;
 import com.bajaintec.entities.Motivo;
+import com.bajaintec.entities.ServicioPublico;
 import com.bajaintec.entities.Usuario;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -31,7 +34,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 //import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
 //import javax.ws.rs.core.MediaType;
 
 /**
@@ -54,14 +56,20 @@ public class StreetSecurityService {
     private static final String PRIMERA_LOCALIZACION_W = "primera_localizacion_w";
     private static final String SEGUNDA_LOCALIZACION_N = "segunda_localizacion_n";
     private static final String SEGUNDA_LOCALIZACION_W = "segunda_localizacion_w";
+     public static final String LOCALIZACION_N = "localizacion_n";
+    public static final String LOCALIZACION_W = "localizacion_w";
+    public static final String COMENTARIO = "comentario";
     
     private static final String CALLE = "calle";
     private static final String CALIFICACION = "calificacion";
     private static final String ID_USUARIO = "idUsuario";
+    private static final String ID_SERVICIO = "idServicio";
+    private static final String ID_DELEGACION = "idDelegacion";
     
     private static final String ID_MOTIVO = "idMotivo";
     private static final String ID_INCIDENTE = "idIncidente";
     
+    private static final String REVIEW_DATA = "reviewData";
     
     @POST
     @Path("/review_street")
@@ -287,7 +295,46 @@ public class StreetSecurityService {
 //        String token = issueToken(user);
 //        return Response.ok(token).build();
     }
-      
+ 
+    @POST
+    @Path("/review_services")
+    public void reviewServices(@FormParam(REVIEW_DATA)String reviewData) {
+        JsonObject obj;
+        try (JsonReader reader = Json.createReader(new StringReader(reviewData))) {
+            obj = reader.readObject();
+        }
+        
+        EvaluacionServicio evaluacion = new EvaluacionServicio();
+        
+        Usuario objUsuario = new Usuario();
+        objUsuario.setIdUsuario(obj.getInt(ID_USUARIO));
+        evaluacion.setUsuario(objUsuario);
+        
+        ServicioPublico objServicio = new ServicioPublico();
+        objServicio.setIdServicio(obj.getInt(ID_SERVICIO));
+        evaluacion.setServicioPublico(objServicio);
+        
+        Delegacion objDelegacion = new Delegacion();
+        objDelegacion.setIdDelegacion(obj.getInt(ID_DELEGACION));
+        evaluacion.setDelegacion(objDelegacion);
+        
+        //Set points
+        evaluacion.setLocalizacionN(obj.getJsonNumber(LOCALIZACION_N).bigDecimalValue());
+        evaluacion.setLocalizacionN(obj.getJsonNumber(LOCALIZACION_W).bigDecimalValue());
+        
+        //Obtener nombre de la calle, si no existe crearlo
+        
+        if(obj.containsKey(COMENTARIO) && obj.getString(COMENTARIO).isEmpty()){
+            evaluacion.setComentario(obj.getString(COMENTARIO));
+        }
+        
+        //TODO: Subir foto
+        evaluacion.setUrlFoto("NONE");
+        
+        //Save data
+        DAOServiceLocator.getBaseDAO().add(evaluacion);
+    }
+    
     private String issueToken(String user){
         Random random = new SecureRandom();
         String token = new BigInteger(130, random).toString(32);
