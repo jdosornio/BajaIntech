@@ -9,9 +9,12 @@ package com.bajaintec.services;
 import com.bajaintec.dao.DAOServiceLocator;
 import com.bajaintec.entities.Calificacion;
 import com.bajaintec.entities.Calle;
+import com.bajaintec.entities.Delegacion;
 import com.bajaintec.entities.EvaluacionSeguridad;
+import com.bajaintec.entities.EvaluacionServicio;
 import com.bajaintec.entities.Incidente;
 import com.bajaintec.entities.Motivo;
+import com.bajaintec.entities.ServicioPublico;
 import com.bajaintec.entities.Usuario;
 import java.io.StringReader;
 import java.math.BigInteger;
@@ -38,23 +41,29 @@ import javax.ws.rs.core.Response;
 @Path("/StreetSecurity")
 public class StreetSecurityService {
     
-    public static final String NAME_PARAM = "name";
-    public static final String USER_PARAM = "user";
-    public static final String PASS_PARAM = "pass";
-    public static final String GENDER_PARAM = "gender";
-    public static final String OCCUPATION_PARAM = "occupation";
-    public static final String EMAIL_PARAM = "email";
-    public static final String BIRTHDATE_PARAM = "birthdate";
+    public static final String NAME = "name";
+    public static final String USER = "user";
+    public static final String PASS = "pass";
+    public static final String GENDER = "gender";
+    public static final String OCCUPATION = "occupation";
+    public static final String EMAIL = "email";
+    public static final String BIRTHDATE = "birthdate";
+    public static final String REVIEW_DATA = "reviewData";
     
     //Parámetros de json
     private static final String PRIMERA_LOCALIZACION_N = "primera_localizacion_n";
     private static final String PRIMERA_LOCALIZACION_W = "primera_localizacion_w";
     private static final String SEGUNDA_LOCALIZACION_N = "segunda_localizacion_n";
     private static final String SEGUNDA_LOCALIZACION_W = "segunda_localizacion_w";
+    public static final String LOCALIZACION_N = "localizacion_n";
+    public static final String LOCALIZACION_W = "localizacion_w";
+    public static final String COMENTARIO = "comentario";
     
     private static final String CALLE = "calle";
     private static final String CALIFICACION = "calificacion";
     private static final String ID_USUARIO = "idUsuario";
+    private static final String ID_SERVICIO = "idServicio";
+    private static final String ID_DELEGACION = "idDelegacion";
     
     private static final String ID_MOTIVO = "idMotivo";
     private static final String ID_INCIDENTE = "idIncidente";
@@ -63,7 +72,7 @@ public class StreetSecurityService {
     @POST
     @Path("/review_street")
 //    @Consumes(MediaType.APPLICATION_JSON)
-    public void reviewStreet(@FormParam("reviewData")String reviewData) {
+    public void reviewStreet(@FormParam(REVIEW_DATA)String reviewData) {
         JsonObject obj;
         try (JsonReader reader = Json.createReader(new StringReader(reviewData))) {
             obj = reader.readObject();
@@ -134,13 +143,13 @@ public class StreetSecurityService {
     
     @POST
     @Path("/sign_up")
-    public void signUp(@FormParam(NAME_PARAM)String name, 
-            @FormParam(USER_PARAM)String user,
-            @FormParam(PASS_PARAM)String pass,
-            @FormParam(GENDER_PARAM)String gender,
-            @FormParam(OCCUPATION_PARAM)String occupation,
-            @FormParam(EMAIL_PARAM)String email,
-            @FormParam(BIRTHDATE_PARAM)String birthdate){
+    public void signUp(@FormParam(NAME)String name, 
+            @FormParam(USER)String user,
+            @FormParam(PASS)String pass,
+            @FormParam(GENDER)String gender,
+            @FormParam(OCCUPATION)String occupation,
+            @FormParam(EMAIL)String email,
+            @FormParam(BIRTHDATE)String birthdate){
         
     }
     
@@ -148,8 +157,8 @@ public class StreetSecurityService {
     @Path("/sign_in")
 //    @Produces("application/json")
 //    @Consumes("application/x-www-form-urlencoded")
-    public Response login(@FormParam(USER_PARAM) String user,
-            @FormParam(PASS_PARAM) String pass){
+    public Response login(@FormParam(USER) String user,
+            @FormParam(PASS) String pass){
         //Verificar en base de datos
         String token = issueToken(user);
         return Response.ok(token).build();
@@ -160,6 +169,45 @@ public class StreetSecurityService {
         String token = new BigInteger(130, random).toString(32);
         //Almacenar token-user
         return token;
-    }    
+    }
+    
+    @POST
+    @Path("/review_services")
+    public void reviewServices(@FormParam(REVIEW_DATA)String reviewData) {
+        JsonObject obj;
+        try (JsonReader reader = Json.createReader(new StringReader(reviewData))) {
+            obj = reader.readObject();
+        }
+        
+        EvaluacionServicio evaluacion = new EvaluacionServicio();
+        
+        Usuario objUsuario = new Usuario();
+        objUsuario.setIdUsuario(obj.getInt(ID_USUARIO));
+        evaluacion.setUsuario(objUsuario);
+        
+        ServicioPublico objServicio = new ServicioPublico();
+        objServicio.setIdServicio(obj.getInt(ID_SERVICIO));
+        evaluacion.setServicioPublico(objServicio);
+        
+        Delegacion objDelegacion = new Delegacion();
+        objDelegacion.setIdDelegacion(obj.getInt(ID_DELEGACION));
+        evaluacion.setDelegacion(objDelegacion);
+        
+        //Set points
+        evaluacion.setLocalizacionN(obj.getJsonNumber(LOCALIZACION_N).bigDecimalValue());
+        evaluacion.setLocalizacionN(obj.getJsonNumber(LOCALIZACION_W).bigDecimalValue());
+        
+        //Obtener nombre de la calle, si no existe crearlo
+        
+        if(obj.containsKey(COMENTARIO) && obj.getString(COMENTARIO).isEmpty()){
+            evaluacion.setComentario(obj.getString(COMENTARIO));
+        }
+        
+        //TODO: Subir foto
+        evaluacion.setUrlFoto("NONE");
+        
+        //Save data
+        DAOServiceLocator.getBaseDAO().add(evaluacion);
+    }
     
 }
