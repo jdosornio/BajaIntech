@@ -5,6 +5,8 @@
  */
 package com.bajaintec.util;
 
+import com.google.maps.DirectionsApi;
+import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.model.GeocodingResult;
@@ -19,7 +21,7 @@ import java.util.Arrays;
  */
 public class GeocoderUtil {
     
-    public static final GeoApiContext CONTEXT = 
+    private static final GeoApiContext CONTEXT = 
             new GeoApiContext().setApiKey("AIzaSyC2GG9X_PmqhTdWAE1_qBGeEf07FDHiP8A");
     
     public String[] getCalleColonia(BigDecimal lat, BigDecimal lng) throws Exception{
@@ -33,6 +35,15 @@ public class GeocoderUtil {
             e.printStackTrace();
         }
         return calleColonia;
+    }
+    
+    public static DirectionsApiRequest getDirection(String origin,
+            String destination) {
+        
+        DirectionsApiRequest request = DirectionsApi
+                .getDirections(CONTEXT, origin, destination);
+        
+        return request;
     }
     
     public static void main(String[] args) throws Exception {
