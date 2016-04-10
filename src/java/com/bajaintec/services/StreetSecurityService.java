@@ -72,6 +72,11 @@ public class StreetSecurityService {
     public static final String LOCALIZACION_W = "localizacion_w";
     public static final String COMENTARIO = "comentario";
     
+    private static final String LANMAYOR = "LatitudMayor";
+    private static final String LANMENOR = "LatitudMenor";
+    private static final String LONMAYOR = "LongitudMayor";
+    private static final String LONMENOR = "LongitudMenor";
+    
     private static final String CALLE = "calle";
     private static final String CALIFICACION = "calificacion";
     private static final String ID_USUARIO = "idUsuario";
@@ -87,6 +92,8 @@ public class StreetSecurityService {
     private static final String ORIGEN = "origen";
     private static final String DESTINO = "destino";
     private static final String ID_COLOR = "idColor";
+    
+    private static final String LANLON = "lanlon";
     
     @POST
     @Path("/review_street")
@@ -207,6 +214,54 @@ public class StreetSecurityService {
             response = segmentos.toString();
         }
         
+        return response;
+    }
+    
+    
+    @POST
+    @Path("/view_street_safety_condition")
+    public String viewStreetSafetyCondition(@FormParam(LANMAYOR) BigDecimal lanMayor,
+            @FormParam(LANMENOR) BigDecimal lanMenor,
+            @FormParam(LONMAYOR) BigDecimal lonMayor,
+            @FormParam(LONMENOR) BigDecimal lonMenor){
+        
+        String response = null;
+        
+        //Obtener todos los registros de las rutas
+//        List evaluaciones = DAOServiceLocator.getBaseDAO()
+//                .getAll(EvaluacionSeguridad.class);/*
+        List evaluaciones = DAOServiceLocator.getBaseDAO()
+                .getStreetCondition(EvaluacionSeguridad.class,lanMayor,lanMenor,lonMayor,lonMenor);
+        
+        
+        if (evaluaciones != null && !evaluaciones.isEmpty()) {
+            //Existen evaluaciones
+            JSONArray segmentos = new JSONArray();
+             for(EvaluacionSeguridad eval : (List<EvaluacionSeguridad>)evaluaciones) {            
+                JSONObject segmento = new JSONObject();
+                JSONObject punto = new JSONObject();
+                punto.put(LAT, eval.getPrimeraLocalizacionN());
+                punto.put(LON, eval.getPrimeraLocalizacionW());
+                 
+                segmento.put(ORIGEN, punto);
+                
+                punto = new JSONObject();
+                
+                punto.put(LAT, eval.getSegundaLocalizacionN());
+                punto.put(LON, eval.getSegundaLocalizacionW());
+                
+                segmento.put(DESTINO, punto);
+                
+                //add color
+                segmento.put(ID_COLOR, eval.getCalificacion()
+                        .getIdCalificacion());
+                
+                //Agregar
+                segmentos.add(segmento);
+             }
+            
+            response = segmentos.toString();
+        }
         return response;
     }
     
