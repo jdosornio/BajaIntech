@@ -22,6 +22,7 @@ import org.hibernate.Session;
 import org.hibernate.StaleStateException;
 import org.hibernate.Transaction;
 import com.bajaintec.util.HibernateUtil;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Map;
 import org.hibernate.criterion.Restrictions;
@@ -127,6 +128,7 @@ public class BaseDAO<T, ID extends Serializable> {
             if (tx != null) {
                 tx.rollback();
             }
+           
             entidades = null;
         } finally {
             s.close();
@@ -135,6 +137,75 @@ public class BaseDAO<T, ID extends Serializable> {
         
         return entidades;
     }
+    
+    
+    
+    public List<T> getStreetCondition(Class<T> clazz, BigDecimal lanMayor,
+            BigDecimal lanMenor,BigDecimal lonMayor,BigDecimal lonMenor) {
+       
+        //Abrir nueva sesión e iniciar la transacción
+        Session s = getSession();
+        Transaction tx = null;
+        List<T> entidades;
+        
+        if(s == null) {
+            System.out.println("Session nula, regresando null....");
+            return null;
+        }
+        
+        try {
+            
+            tx = s.beginTransaction();
+            //Obtiene todos los objetos de la clase, sin sus relaciones
+            Criteria c = s.createCriteria(clazz);
+            entidades = c.add(Restrictions.between("primeraLocalizacionN", lanMenor,lanMayor)).add(
+                                    Restrictions.and(Restrictions.between("segundaLocalizacionN", lanMenor,lanMayor),
+                                    Restrictions.between("primeraLocalizacionW", lonMenor,lonMayor),
+                                    Restrictions.between("segundaLocalizacionW", lonMenor,lonMayor)))
+                   .list();
+            
+            
+            //c.add(Restrictions.ge("primeraLocalizacionN", lanMenor));
+            
+            //c.add(Restrictions.ge("idEvaluacionSeguridad", 1));
+            
+            entidades = c.list();
+//            entidades = c.add(Restrictions.ge("primera_localizacion_n", lanMenor)).add(
+//                                    Restrictions.and(Restrictions.le("primera_localizacion_n", lanMayor),
+//                                    Restrictions.ge("segunda_localizacion_n", lanMenor),
+//                                    Restrictions.le("segunda_localizacion_n", lanMayor),
+//                                    Restrictions.ge("primera_localizacion_w", lonMenor),
+//                                    Restrictions.le("primera_localizacion_w", lonMayor),
+//                                    Restrictions.ge("segunda_localizacion_w", lonMenor),
+//                                    Restrictions.le("segunda_localizacion_w", lonMayor))).list();
+            
+//            entidades = c.add(Restrictions.ge("primera_localizacion_n", lanMenor)).add(
+//                                    Restrictions.and(Restrictions.le("primera_localizacion_n", lanMayor),
+//                                    Restrictions.ge("segunda_localizacion_n", lanMenor),
+//                                    Restrictions.le("segunda_localizacion_n", lanMayor),
+//                                    Restrictions.ge("primera_localizacion_w", lonMenor),
+//                                    Restrictions.le("primera_localizacion_w", lonMayor),
+//                                    Restrictions.ge("segunda_localizacion_w", lonMenor),
+//                                    Restrictions.le("segunda_localizacion_w", lonMayor))).list();
+            
+//            entidades = c.list();
+            tx.commit();
+        } catch (Exception e) {
+            //Si hay error hacer rollback
+            if (tx != null) {
+                tx.rollback();
+            }
+             System.out.println(e);
+            entidades = null;
+        } finally {
+            s.close();
+            System.out.println("Session cerrada");
+        }
+        
+        return entidades;
+    }
+    
+    
     
     /**
      * Inserta la entidad ingresada y la vuelve persistente
